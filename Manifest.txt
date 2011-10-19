@@ -1,0 +1,8 @@
+.autotest
+History.txt
+Manifest.txt
+README.txt
+Rakefile
+bin/diff_patch_match
+lib/diff_patch_match.rb
+test/test_diff_patch_match.rb
