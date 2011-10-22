@@ -2528,11 +2528,10 @@ template <> struct diff_match_patch_traits<wchar_t> : diff_match_patch_utf32_fro
   static const wchar_t* cs(const wchar_t* s) { return s; }
 };
 
-/*
+
 // Possible specialization of the traits for char
 #include <cctype>
-template <> struct diff_match_patch_traits<char> : diff_match_patch_direct_utf32<char>
-{
+template <> struct diff_match_patch_traits<char> : diff_match_patch_utf32_direct<char> {
   static bool is_alnum(char c) { return std::isalnum(c)? true : false; }
   static bool is_digit(char c) { return std::isdigit(c)? true : false; }
   static bool is_space(char c) { return std::isspace(c)? true : false; }
@@ -2541,6 +2540,6 @@ template <> struct diff_match_patch_traits<char> : diff_match_patch_direct_utf32
   static wchar_t to_wchar(char c) { return static_cast<wchar_t>(c); }
   static std::string cs(const wchar_t* s) { return std::string(s, s + wcslen(s)); }
 };
-*/
+
 
 #endif // DIFF_MATCH_PATCH_H
