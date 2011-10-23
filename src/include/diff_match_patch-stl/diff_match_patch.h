@@ -356,7 +356,7 @@ class diff_match_patch {
     {
       const string_t& longtext = text1.length() > text2.length() ? text1 : text2;
       const string_t& shorttext = text1.length() > text2.length() ? text2 : text1;
-      const int i = longtext.find(shorttext);
+      const size_t i = longtext.find(shorttext);
       if (i != string_t::npos) {
         // Shorter text is inside the longer text (speedup).
         const Operation op = (text1.length() > text2.length()) ? DELETE : INSERT;
@@ -761,7 +761,7 @@ class diff_match_patch {
     int length = 1;
     while (true) {
       string_t pattern = right(text1_trunc, length);
-      int found = text2_trunc.find(pattern);
+      size_t found = text2_trunc.find(pattern);
       if (found == string_t::npos) {
         return best;
       }
@@ -840,7 +840,7 @@ class diff_match_patch {
   static bool diff_halfMatchI(const string_t &longtext, const string_t &shorttext, int i, HalfMatchResult& best) {
     // Start with a 1/4 length substring at position i as a seed.
     const string_t seed = safeMid(longtext, i, longtext.length() / 4);
-    int j = string_t::npos;
+    size_t j = string_t::npos;
     while ((j = shorttext.find(seed, j + 1)) != string_t::npos) {
       const int prefixLength = diff_commonPrefix(safeMid(longtext, i),
           safeMid(shorttext, j));
@@ -2306,7 +2306,7 @@ class diff_match_patch {
    */
  private:
   static inline string_t safeMid(const string_t &str, int pos) {
-    return (pos == str.length()) ? string_t() : str.substr(pos);
+    return ((size_t)pos == str.length()) ? string_t() : str.substr(pos);
   }
 
   /**
@@ -2319,7 +2319,7 @@ class diff_match_patch {
    */
  private:
   static inline string_t safeMid(const string_t &str, int pos, int len) {
-    return (pos == str.length()) ? string_t() : str.substr(pos, len);
+    return ((size_t)pos == str.length()) ? string_t() : str.substr(pos, len);
   }
 
   /**
