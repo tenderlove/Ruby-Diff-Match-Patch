@@ -34,8 +34,16 @@ class rb_diff_match_patch : diff_match_patch<std::string> {
       return Diff_Timeout;
     }
 
-    void SetDiff_Timeout(const float value){
+    void SetDiff_Timeout(float value){
       Diff_Timeout = value;
+    }
+
+    float GetDiff_EditCost(){
+      return Diff_EditCost;
+    }
+
+    void SetDiff_EditCost(float value){
+      Diff_EditCost = value;
     }
 
 };
@@ -47,5 +55,8 @@ void register_dmp(){
   rb_cDMP.define_method("diff_main", &rb_diff_match_patch::rb_diff_main);
   rb_cDMP.define_method("diff_timeout", &rb_diff_match_patch::GetDiff_Timeout);
   rb_cDMP.define_method("diff_timeout=", &rb_diff_match_patch::SetDiff_Timeout);
+  rb_cDMP.define_method("diff_edit_cost", &rb_diff_match_patch::GetDiff_EditCost);
+  rb_cDMP.define_method("diff_edit_cost=", &rb_diff_match_patch::SetDiff_EditCost);
+
 
 }

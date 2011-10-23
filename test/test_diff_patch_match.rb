@@ -7,6 +7,28 @@ class TestDiffMatchPatch < Test::Unit::TestCase
     @dmp = DiffMatchPatch.new
   end
 
+  def test_should_get_and_set_diff_timeout
+    dmp = DiffMatchPatch.new # Use a new one so there's no interference
+    assert dmp.diff_timeout.instance_of?(Float)
+    assert_equal 1.0, dmp.diff_timeout
+
+    dmp.diff_timeout = 0
+
+    assert dmp.diff_timeout.instance_of?(Float)
+    assert_equal 0, dmp.diff_timeout
+  end
+
+  def test_should_get_and_set_diff_edit_cost
+    dmp = DiffMatchPatch.new # Use a new one so there's no interference
+    assert dmp.diff_edit_cost.instance_of?(Float)
+    assert_equal 4.0, dmp.diff_edit_cost
+
+    dmp.diff_edit_cost = 1.0
+
+    assert dmp.diff_edit_cost.instance_of?(Float)
+    assert_equal 1, dmp.diff_edit_cost
+  end
+
   def test_simple_diff_main_scenarios
     assert @dmp.diff_main("", "", false).empty?
   
@@ -24,17 +46,6 @@ class TestDiffMatchPatch < Test::Unit::TestCase
 
     two_deletion_result = [[0, "a"], [-1, "123"], [0, "b"], [-1, "456"], [0, "c"]]
     assert_equal two_deletion_result, @dmp.diff_main("a123b456c", "abc", false)
-  end
-
-  def test_should_get_and_set_diff_timeout
-    dmp = DiffMatchPatch.new # Use a new one so there's no interference
-    assert dmp.diff_timeout.instance_of?(Float)
-    assert_equal 1.0, dmp.diff_timeout
-
-    dmp.diff_timeout = 0
-
-    assert dmp.diff_timeout.instance_of?(Float)
-    assert_equal 0, dmp.diff_timeout
   end
 
   def test_real_diff_main_scenarios
