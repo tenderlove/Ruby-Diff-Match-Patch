@@ -85,4 +85,42 @@ class TestDiffMatchPatch < Test::Unit::TestCase
     assert_equal(@dmp.diff_main(a, b, true), @dmp.diff_main(a, b, false));
   end
 
+  def test_diff_cleanup_semantic
+    diffs = [];
+    @dmp.diff_cleanup_semantic!(diffs);
+    assert_equal [], diffs
+
+    diffs = [[-1, "ab"], [1, "cd"], [0, "12"], [-1, "e"]]
+    @dmp.diff_cleanup_semantic!(diffs);
+    assert_equal [[-1, "ab"], [1, "cd"], [0, "12"], [-1, "e"]], diffs
+
+    diffs = [[-1, "abc"], [1, "ABC"], [0, "1234"], [-1, "wxyz"]]
+    @dmp.diff_cleanup_semantic!(diffs);
+    assert_equal [[-1, "abc"], [1, "ABC"], [0, "1234"], [-1, "wxyz"]], diffs
+
+    diffs = [[-1, "a"], [0, "b"], [-1, "c"]]
+    @dmp.diff_cleanup_semantic!(diffs);
+    assert_equal [[-1, "abc"], [1, "b"]], diffs
+
+    diffs = [[-1, "ab"], [0, "cd"], [-1, "e"], [0, "f"], [1, "g"]]
+    @dmp.diff_cleanup_semantic!(diffs);
+    assert_equal [[-1, "abcdef"], [1, "cdfg"]], diffs
+
+    diffs = [[1, "1"], [0, "A"], [-1, "B"], [1, "2"], [0, "_"], [1, "1"], [0, "A"], [-1, "B"], [1, "2"]]
+    @dmp.diff_cleanup_semantic!(diffs);
+    assert_equal [[-1, "AB_AB"], [1, "1A2_1A2"]], diffs
+
+    diffs = [[0, "The c"], [-1, "ow and the c"], [0, "at."]]
+    @dmp.diff_cleanup_semantic!(diffs);
+    assert_equal [[0, "The "], [-1, "cow and the "], [0, "cat."]], diffs
+
+    diffs = [[-1, "abcxx"], [1, "xxdef"]]
+    @dmp.diff_cleanup_semantic!(diffs);
+    assert_equal [[-1, "abc"], [0, "xx"], [1, "def"]], diffs
+
+    diffs = [[-1, "abcxx"], [1, "xxdef"], [-1, "ABCXX"], [1, "XXDEF"]]
+    @dmp.diff_cleanup_semantic!(diffs);
+    assert_equal [[-1, "abc"], [0, "xx"], [1, "def"], [-1, "ABC"], [0, "XX"], [1, "DEF"]], diffs
+  end
+
 end
