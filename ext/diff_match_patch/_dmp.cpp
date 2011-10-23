@@ -85,9 +85,15 @@ public:
     Diff_EditCost = value;
   }
 
-  Rice::Array rb_cleanupSemantic(Rice::Array array){
+  Rice::Array rb_diff_cleanupSemantic(Rice::Array array){
     Diffs diffs = diffsFromRubyArray(array, true);
     diff_cleanupSemantic(diffs);
+    return rubyArrayFromDiffsWithArray(diffs, array);
+  }
+
+  Rice::Array rb_diff_cleanupEfficiency(Rice::Array array){
+    Diffs diffs = diffsFromRubyArray(array, true);
+    diff_cleanupEfficiency(diffs);
     return rubyArrayFromDiffsWithArray(diffs, array);
   }
 
@@ -102,7 +108,8 @@ void register_dmp(){
   rb_cDMP.define_method("diff_timeout=", &rb_diff_match_patch::SetDiff_Timeout);
   rb_cDMP.define_method("diff_edit_cost", &rb_diff_match_patch::GetDiff_EditCost);
   rb_cDMP.define_method("diff_edit_cost=", &rb_diff_match_patch::SetDiff_EditCost);
-  rb_cDMP.define_method("diff_cleanup_semantic!", &rb_diff_match_patch::rb_cleanupSemantic);
+  rb_cDMP.define_method("diff_cleanup_semantic!", &rb_diff_match_patch::rb_diff_cleanupSemantic);
+  rb_cDMP.define_method("diff_cleanup_efficiency!", &rb_diff_match_patch::rb_diff_cleanupEfficiency);
 
 
 
