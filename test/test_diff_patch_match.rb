@@ -152,4 +152,20 @@ class TestDiffMatchPatch < Test::Unit::TestCase
     @dmp.diff_edit_cost = 4
   end
 
+  def test_diff_levenshtein
+    diffs = [[-1, "abc"], [1, "1234"], [0, "xyz"]]
+    assert_equal 4, @dmp.diff_levenshtein(diffs)
+
+    diffs = [[0, "xyz"], [-1, "abc"], [1, "1234"]]
+    assert_equal 4, @dmp.diff_levenshtein(diffs)
+
+    diffs = [[-1, "abc"], [0, "xyz"], [1, "1234"]]
+    assert_equal 7, @dmp.diff_levenshtein(diffs)
+  end
+
+  def test_diff_pretty_html
+    diffs = [[0, "a\n"], [-1, "<B>b</B>"], [1, "c&d"]];
+    assert_equal "<span>a&para;<br></span><del style=\"background:#ffe6e6;\">&lt;B&gt;b&lt;/B&gt;</del><ins style=\"background:#e6ffe6;\">c&amp;d</ins>", @dmp.diff_pretty_html(diffs)
+  end
+
 end

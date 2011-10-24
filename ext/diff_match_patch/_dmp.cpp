@@ -97,6 +97,16 @@ public:
     return rubyArrayFromDiffsWithArray(diffs, array);
   }
 
+  int rb_diff_levenshtein(Rice::Array array){
+    Diffs diffs = diffsFromRubyArray(array);
+    return diff_levenshtein(diffs);
+  }
+
+  std::string rb_diff_prettyHtml(Rice::Array array){
+    Diffs diffs = diffsFromRubyArray(array);
+    return diff_prettyHtml(diffs);
+  }
+
 };
 
 void register_dmp(){
@@ -110,7 +120,7 @@ void register_dmp(){
   rb_cDMP.define_method("diff_edit_cost=", &rb_diff_match_patch::SetDiff_EditCost);
   rb_cDMP.define_method("diff_cleanup_semantic!", &rb_diff_match_patch::rb_diff_cleanupSemantic);
   rb_cDMP.define_method("diff_cleanup_efficiency!", &rb_diff_match_patch::rb_diff_cleanupEfficiency);
-
-
+  rb_cDMP.define_method("diff_levenshtein", &rb_diff_match_patch::rb_diff_levenshtein);
+  rb_cDMP.define_method("diff_pretty_html", &rb_diff_match_patch::rb_diff_prettyHtml);
 
 }
