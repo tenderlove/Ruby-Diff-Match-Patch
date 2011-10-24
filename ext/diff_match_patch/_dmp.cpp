@@ -107,12 +107,25 @@ public:
     return diff_prettyHtml(diffs);
   }
 
+  int rb_match_main(const string_t &text, const string_t &pattern, int loc) const {
+    return match_main(text, pattern, loc);
+  }
+
+  float GetMatch_Threshold(){
+    return Match_Threshold;
+  }
+
+  void SetMatch_Threshold(float value){
+    Match_Threshold = value;
+  }
+
 };
 
 void register_dmp(){
 
   Rice::Data_Type< rb_diff_match_patch > rb_cDMP = Rice::define_class< rb_diff_match_patch >("DiffMatchPatch");
   rb_cDMP.define_constructor(Rice::Constructor<rb_diff_match_patch>());
+
   rb_cDMP.define_method("diff_main", &rb_diff_match_patch::rb_diff_main);
   rb_cDMP.define_method("diff_timeout", &rb_diff_match_patch::GetDiff_Timeout);
   rb_cDMP.define_method("diff_timeout=", &rb_diff_match_patch::SetDiff_Timeout);
@@ -122,5 +135,9 @@ void register_dmp(){
   rb_cDMP.define_method("diff_cleanup_efficiency!", &rb_diff_match_patch::rb_diff_cleanupEfficiency);
   rb_cDMP.define_method("diff_levenshtein", &rb_diff_match_patch::rb_diff_levenshtein);
   rb_cDMP.define_method("diff_pretty_html", &rb_diff_match_patch::rb_diff_prettyHtml);
+
+  rb_cDMP.define_method("match_main", &rb_diff_match_patch::rb_match_main);
+  rb_cDMP.define_method("match_threshold", &rb_diff_match_patch::GetMatch_Threshold);
+  rb_cDMP.define_method("match_threshold=", &rb_diff_match_patch::SetMatch_Threshold);
 
 }

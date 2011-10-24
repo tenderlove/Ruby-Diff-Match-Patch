@@ -1607,7 +1607,7 @@ class diff_match_patch {
     // Highest score beyond which we give up.
     double score_threshold = Match_Threshold;
     // Is there a nearby exact match? (speedup)
-    int best_loc = text.find(pattern, loc);
+    size_t best_loc = text.find(pattern, loc);
     if (best_loc != string_t::npos) {
       score_threshold = std::min(match_bitapScore(0, best_loc, loc, pattern),
           score_threshold);
@@ -1674,9 +1674,9 @@ class diff_match_patch {
             // Told you so.
             score_threshold = score;
             best_loc = j - 1;
-            if (best_loc > loc) {
+            if ((int)best_loc > loc) {
               // When passing loc, don't exceed our current distance from loc.
-              start = std::max(1, 2 * loc - best_loc);
+              start = std::max(1, 2 * loc - (int)best_loc);
             } else {
               // Already passed loc, downhill from here on in.
               break;

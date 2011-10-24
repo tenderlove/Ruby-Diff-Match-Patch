@@ -168,4 +168,18 @@ class TestDiffMatchPatch < Test::Unit::TestCase
     assert_equal "<span>a&para;<br></span><del style=\"background:#ffe6e6;\">&lt;B&gt;b&lt;/B&gt;</del><ins style=\"background:#e6ffe6;\">c&amp;d</ins>", @dmp.diff_pretty_html(diffs)
   end
 
+  def test_match_main
+    assert_equal 0, @dmp.match_main("abcdef", "abcdef", 1000)
+
+    assert_equal -1, @dmp.match_main("", "abcdef", 1)
+
+    assert_equal 3, @dmp.match_main("abcdef", "", 3)
+
+    assert_equal 3, @dmp.match_main("abcdef", "de", 3)
+
+    @dmp.match_threshold = 0.7
+    assert_equal 4, @dmp.match_main("I am the very model of a modern major general.", " that berry ", 5)
+    @dmp.match_threshold = 0.5
+  end
+
 end
