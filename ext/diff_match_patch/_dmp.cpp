@@ -1,69 +1,9 @@
 #include "_dmp.h"
-#include <stdio.h>
 
 #define dmp diff_match_patch<std::string>
 
-namespace {
-  
-  dmp::Diffs diffsFromRubyArray(Rice::Array &array, bool clearArray=false){
-    dmp::Diffs diffs;
-    size_t arraySize = array.size();
-    for (size_t i = 0; i < arraySize; ++i){
-      Rice::Array rb_diff;
-      if (clearArray) {
-        rb_diff = from_ruby<Rice::Array>(array.shift());
-      } else {
-        rb_diff = from_ruby<Rice::Array>(array[i]);
-      }
-
-      dmp::Operation op;
-      switch (from_ruby<int>(rb_diff[0])) {
-        case 1:
-          op = dmp::INSERT;
-          break;
-        case 0:
-          op = dmp::EQUAL;
-          break;
-        case -1:
-          op = dmp::DELETE;
-          break;
-      }
-      diffs.push_back(dmp::Diff(op, from_ruby<std::string>(rb_diff[1])));
-
-    }
-    return diffs;
-  }
-
-  Rice::Array rubyArrayFromDiffsWithArray(dmp::Diffs diffs, Rice::Array &out){
-    dmp::Diffs::iterator current_diff;
-    for (current_diff = diffs.begin(); current_diff != diffs.end(); ++current_diff) {
-      Rice::Array rb_diff;
-      switch (current_diff->operation){
-        case dmp::INSERT:
-          rb_diff.push(1);
-          break;
-        case dmp::DELETE:
-          rb_diff.push(-1);
-          break;
-        case dmp::EQUAL:
-          rb_diff.push(0);
-          break;
-      }
-      rb_diff.push(current_diff->text);
-      out.push(rb_diff);
-    }
-      
-    return out;
-  }
-
-  Rice::Array rubyArrayFromDiffs(const dmp::Diffs &diffs){
-    Rice::Array out;
-    return rubyArrayFromDiffsWithArray(diffs, out);
-  }
-
-}
-
 class rb_patch_wrapper{
+  
   public:
 
     dmp::Patch patch;
@@ -100,6 +40,62 @@ class rb_diff_match_patch : dmp {
 
 protected:
 
+  Diffs diffsFromRubyArray(Rice::Array &array, bool clearArray=false){
+    Diffs diffs;
+    size_t arraySize = array.size();
+    for (size_t i = 0; i < arraySize; ++i){
+      Rice::Array rb_diff;
+      if (clearArray) {
+        rb_diff = from_ruby<Rice::Array>(array.shift());
+      } else {
+        rb_diff = from_ruby<Rice::Array>(array[i]);
+      }
+
+      Operation op;
+      switch (from_ruby<int>(rb_diff[0])) {
+        case 1:
+          op = INSERT;
+          break;
+        case 0:
+          op = EQUAL;
+          break;
+        case -1:
+          op = DELETE;
+          break;
+      }
+      diffs.push_back(dmp::Diff(op, from_ruby<std::string>(rb_diff[1])));
+
+    }
+    return diffs;
+  }
+
+  Rice::Array rubyArrayFromDiffsWithArray(dmp::Diffs diffs, Rice::Array &out){
+    Diffs::iterator current_diff;
+    for (current_diff = diffs.begin(); current_diff != diffs.end(); ++current_diff) {
+      Rice::Array rb_diff;
+      switch (current_diff->operation){
+        case INSERT:
+          rb_diff.push(1);
+          break;
+        case DELETE:
+          rb_diff.push(-1);
+          break;
+        case EQUAL:
+          rb_diff.push(0);
+          break;
+      }
+      rb_diff.push(current_diff->text);
+      out.push(rb_diff);
+    }
+      
+    return out;
+  }
+
+  Rice::Array rubyArrayFromDiffs(const dmp::Diffs &diffs){
+    Rice::Array out;
+    return rubyArrayFromDiffsWithArray(diffs, out);
+  }
+
   Rice::Array rubyArrayFromPatches(Patches &patches){
     Rice::Array out;
     Patches::iterator current_patch = patches.begin();
@@ -120,9 +116,10 @@ protected:
   }
 
 public:
+
   rb_diff_match_patch(){}
   
-  Rice::Object rb_diff_main(const std::string &text1, const std::string &text2, bool checklines = false){
+  Rice::Object rb_diff_main(const std::string &text1, const std::string &text2, bool checklines=false){
     Diffs diffs = diff_main(text1, text2, checklines);
     return rubyArrayFromDiffs(diffs);
   }
@@ -257,7 +254,6 @@ void register_dmp(){
   rb_cDMP.define_method("match_threshold=", &rb_diff_match_patch::SetMatch_Threshold);
   rb_cDMP.define_method("match_distance", &rb_diff_match_patch::GetMatch_Distance);
   rb_cDMP.define_method("match_distance=", &rb_diff_match_patch::SetMatch_Distance);
-
 
   rb_cDMP.define_method("patch_delete_threshold", &rb_diff_match_patch::GetPatch_DeleteThreshold);
   rb_cDMP.define_method("patch_delete_threshold=", &rb_diff_match_patch::SetPatch_DeleteThreshold);
