@@ -33,9 +33,12 @@ and generate the RDoc.
 
 == LICENSE:
 
-(The MIT License)
 
-Copyright (c) 2011 FIX
+diff_match_patch-stl.h is Copyright 2008 Google Inc, and licensed under 
+the Apache license. See 
+src/include/diff_match_patch-stl/diff_match_patch.h
+
+Copyright (c) 2011 Elliot Laster
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
