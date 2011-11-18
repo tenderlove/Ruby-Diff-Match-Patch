@@ -169,9 +169,9 @@ class TestDiffMatchPatch < Test::Unit::TestCase
   end
 
   def test_match_main
-    assert_equal 0, @dmp.match_main("abcdef", "abcdef", 1000)
+    assert_equal(0, @dmp.match_main("abcdef", "abcdef", 1000))
 
-    assert_equal -1, @dmp.match_main("", "abcdef", 1)
+    assert_equal(-1, @dmp.match_main("", "abcdef", 1))
 
     assert_equal 3, @dmp.match_main("abcdef", "", 3)
 
@@ -180,6 +180,99 @@ class TestDiffMatchPatch < Test::Unit::TestCase
     @dmp.match_threshold = 0.7
     assert_equal 4, @dmp.match_main("I am the very model of a modern major general.", " that berry ", 5)
     @dmp.match_threshold = 0.5
+  end
+
+  def test_patch_from_text
+    assert @dmp.patch_from_text("").empty?
+    
+    [
+      "@@ -21,18 +22,17 @@\n jump\n-s\n+ed\n  over \n-the\n+a\n laz\n",
+      "@@ -1 +1 @@\n-a\n+b\n",
+      "@@ -1,3 +0,0 @@\n-abc\n",
+      "@@ -0,0 +1,3 @@\n+abc\n"
+    ].each do |str|
+      assert_equal str, @dmp.patch_from_text(str).first.to_string
+    end
+  end
+
+  def test_patch_to_text
+    str = "@@ -21,18 +22,17 @@\n jump\n-s\n+ed\n  over \n-the\n+a\n laz\n"
+    patches = @dmp.patch_from_text(str)
+    assert_equal str, @dmp.patch_to_text(patches)
+
+    multiples = "@@ -1,9 +1,9 @@\n-f\n+F\n oo+fooba\n@@ -7,9 +7,9 @@\n obar\n-,\n+.\n  tes\n"
+    patches = @dmp.patch_from_text(multiples)
+    assert_equal multiples, @dmp.patch_to_text(patches)
+  end
+
+  def test_patch_make
+    patches = @dmp.patch_make("", "")
+    assert_equal "", @dmp.patch_to_text(patches)
+
+    text_1 = "The quick brown fox jumps over the lazy dog."
+    text_2 = "That quick brown fox jumped over a lazy dog."
+
+    expected_patch = "@@ -1,8 +1,7 @@\n Th\n-at\n+e\n  qui\n@@ -21,17 +21,18 @@\n jump\n-ed\n+s\n  over \n-a\n+the\n  laz\n"
+    patches = @dmp.patch_make(text_2, text_1)
+    assert_equal(expected_patch, @dmp.patch_to_text(patches))
+
+    expected_patch = "@@ -1,11 +1,12 @@\n Th\n-e\n+at\n  quick b\n@@ -22,18 +22,17 @@\n jump\n-s\n+ed\n  over \n-the\n+a\n  laz\n"
+    patches = @dmp.patch_make(text_1, text_2)
+    assert_equal(expected_patch, @dmp.patch_to_text(patches))
+
+    diffs = @dmp.diff_main(text_1, text_2, false)
+    patches = @dmp.patch_make(diffs)
+    assert_equal(expected_patch, @dmp.patch_to_text(patches))
+
+    patches = @dmp.patch_make(text_1, diffs)
+    assert_equal(expected_patch, @dmp.patch_to_text(patches))
+  end
+
+  def test_patch_apply
+    @dmp.match_distance = 1000
+    @dmp.match_threshold = 0.5
+    @dmp.patch_delete_threshold = 0.5
+
+    patches = @dmp.patch_make("", "")
+    results = @dmp.patch_apply(patches, "Hello World")
+    assert_equal ["Hello World", []], results
+
+    patches = @dmp.patch_make("The quick brown fox jumps over the lazy dog.", "That quick brown fox jumped over a lazy dog.")
+    results = @dmp.patch_apply(patches, "The quick brown fox jumps over the lazy dog.")
+    assert_equal ["That quick brown fox jumped over a lazy dog.", [true, true]], results
+  
+    results = @dmp.patch_apply(patches, "The quick red rabbit jumps over the tired tiger.")
+    assert_equal ["That quick red rabbit jumped over a tired tiger.", [true, true]], results
+  
+    results = @dmp.patch_apply(patches, "I am the very model of a modern major general.")
+    assert_equal ["I am the very model of a modern major general.", [false, false]], results
+  
+    patches = @dmp.patch_make("x1234567890123456789012345678901234567890123456789012345678901234567890y", "xabcy")
+    results = @dmp.patch_apply(patches, "x123456789012345678901234567890-----++++++++++-----123456789012345678901234567890y")
+    assert_equal ["xabcy", [true, true]], results
+    
+    patches = @dmp.patch_make("x1234567890123456789012345678901234567890123456789012345678901234567890y", "xabcy")
+    results = @dmp.patch_apply(patches, "x12345678901234567890---------------++++++++++---------------12345678901234567890y") 
+    assert_equal ["xabc12345678901234567890---------------++++++++++---------------12345678901234567890y", [false, true]], results
+    
+    @dmp.patch_delete_threshold = 0.6
+    patches = @dmp.patch_make("x1234567890123456789012345678901234567890123456789012345678901234567890y", "xabcy")
+    results = @dmp.patch_apply(patches, "x12345678901234567890---------------++++++++++---------------12345678901234567890y")
+    assert_equal ["xabcy", [true, true]], results
+
+    @dmp.patch_delete_threshold = 0.5
+    @dmp.match_distance = 0
+    @dmp.match_threshold = 0
+    patches = @dmp.patch_make("abcdefghijklmnopqrstuvwxyz--------------------1234567890", "abcXXXXXXXXXXdefghijklmnopqrstuvwxyz--------------------1234567YYYYYYYYYY890")
+    results = @dmp.patch_apply(patches, "ABCDEFGHIJKLMNOPQRSTUVWXYZ--------------------1234567890")
+    assert_equal ["ABCDEFGHIJKLMNOPQRSTUVWXYZ--------------------1234567YYYYYYYYYY890", [false, true]], results
+
+    @dmp.match_distance = 1000
+    @dmp.match_threshold = 0.5
+    patches = @dmp.patch_make("", "test")
+    str = @dmp.patch_to_text(patches)
+    @dmp.patch_apply(patches, "")
+    assert_equal str, @dmp.patch_to_text(patches)
   end
 
 end

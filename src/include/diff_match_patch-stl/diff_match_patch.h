@@ -2357,7 +2357,7 @@ class diff_match_patch {
     for (i = 0; i < 0x100; ++i) safe[i] = 0;
     for (i = 0; i < sizeof(safe_chars) / sizeof(wchar_t); ++i) safe[safe_chars[i]] = i + 1;
 
-    int n = 0;
+    size_t n = 0;
     typename traits::utf32_t u;
     typename string_t::const_pointer c = s2.c_str(), end = c + s2.length();
     while (c != end) {

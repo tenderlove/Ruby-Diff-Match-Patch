@@ -8,6 +8,9 @@
 #include <string>
 #include <rice/Constructor.hpp>
 
+#define dmp diff_match_patch<std::string>
+
+
 void register_dmp();
 
 #endif

@@ -1,12 +1,12 @@
 #include "_dmp.h"
 #include <stdio.h>
 
-class rb_diff_match_patch : diff_match_patch<std::string> {
+#define dmp diff_match_patch<std::string>
 
-protected:
-
-  Diffs diffsFromRubyArray(Rice::Array &array, bool clearArray=false){
-    Diffs diffs;
+namespace {
+  
+  dmp::Diffs diffsFromRubyArray(Rice::Array &array, bool clearArray=false){
+    dmp::Diffs diffs;
     size_t arraySize = array.size();
     for (size_t i = 0; i < arraySize; ++i){
       Rice::Array rb_diff;
@@ -16,41 +16,36 @@ protected:
         rb_diff = from_ruby<Rice::Array>(array[i]);
       }
 
-      Operation op;
+      dmp::Operation op;
       switch (from_ruby<int>(rb_diff[0])) {
         case 1:
-          op = INSERT;
+          op = dmp::INSERT;
           break;
         case 0:
-          op = EQUAL;
+          op = dmp::EQUAL;
           break;
         case -1:
-          op = DELETE;
+          op = dmp::DELETE;
           break;
       }
-      diffs.push_back(Diff(op, from_ruby<std::string>(rb_diff[1])));
+      diffs.push_back(dmp::Diff(op, from_ruby<std::string>(rb_diff[1])));
 
     }
     return diffs;
   }
 
-  Rice::Array rubyArrayFromDiffs(const Diffs &diffs){
-    Rice::Array out;
-    return rubyArrayFromDiffsWithArray(diffs, out);
-  }
-
-  Rice::Array rubyArrayFromDiffsWithArray(Diffs diffs, Rice::Array &out){
-    Diffs::iterator current_diff;
+  Rice::Array rubyArrayFromDiffsWithArray(dmp::Diffs diffs, Rice::Array &out){
+    dmp::Diffs::iterator current_diff;
     for (current_diff = diffs.begin(); current_diff != diffs.end(); ++current_diff) {
       Rice::Array rb_diff;
       switch (current_diff->operation){
-        case INSERT:
+        case dmp::INSERT:
           rb_diff.push(1);
           break;
-        case DELETE:
+        case dmp::DELETE:
           rb_diff.push(-1);
           break;
-        case EQUAL:
+        case dmp::EQUAL:
           rb_diff.push(0);
           break;
       }
@@ -59,6 +54,69 @@ protected:
     }
       
     return out;
+  }
+
+  Rice::Array rubyArrayFromDiffs(const dmp::Diffs &diffs){
+    Rice::Array out;
+    return rubyArrayFromDiffsWithArray(diffs, out);
+  }
+
+}
+
+class rb_patch_wrapper{
+  public:
+
+    dmp::Patch patch;
+
+    rb_patch_wrapper(dmp::Patch &the_patch) : patch(the_patch) {}
+
+    int start1(){
+      return patch.start1;
+    }
+
+    int start2(){
+      return patch.start2;
+    }
+
+    int length1(){
+      return patch.length1;
+    }
+
+    int length2(){
+      return patch.length2;
+    }
+
+    std::string toString(){
+      return patch.toString();
+    }
+
+    bool isNull(){
+      return patch.isNull();
+    }
+
+};
+
+class rb_diff_match_patch : dmp {
+
+protected:
+
+  Rice::Array rubyArrayFromPatches(Patches &patches){
+    Rice::Array out;
+    Patches::iterator current_patch = patches.begin();
+    for (current_patch = patches.begin(); current_patch != patches.end(); ++current_patch){
+      rb_patch_wrapper patch = rb_patch_wrapper(*current_patch);
+      out.push(patch);
+    }
+    return out;
+  }
+
+  Patches patchesFromRubyArray(Rice::Array &array){
+    Patches patches;
+    for (size_t i = 0; i < array.size(); ++i) {
+      rb_patch_wrapper wrapper = from_ruby<rb_patch_wrapper>(array[i]);
+      patches.push_back(wrapper.patch);
+    }
+    return patches;
   }
 
 public:
@@ -119,6 +177,64 @@ public:
     Match_Threshold = value;
   }
 
+  int GetMatch_Distance(){
+    return Match_Distance;
+  }
+
+  void SetMatch_Distance(int value){
+    Match_Distance = value;
+  }
+
+  float GetPatch_DeleteThreshold(){
+    return Patch_DeleteThreshold;
+  }
+
+  void SetPatch_DeleteThreshold(float value){
+    Patch_DeleteThreshold = value;
+  }
+
+  Rice::Array rb_patch_fromText(const std::string &str){
+    Patches patches = patch_fromText(str);
+    return rubyArrayFromPatches(patches);
+  }
+
+  std::string rb_patch_toText(Rice::Array array){
+    Patches patches = patchesFromRubyArray(array);
+    return patch_toText(patches);
+  }
+
+  Rice::Array rb_patch_make_from_texts(std::string text1, std::string text2){
+    Patches patches = patch_make(text1, text2);
+    return rubyArrayFromPatches(patches);
+  }
+
+  Rice::Array rb_patch_make_from_diffs(Rice::Array array){
+    Diffs diffs = diffsFromRubyArray(array);
+    Patches patches = patch_make(diffs);
+    return rubyArrayFromPatches(patches);
+  }
+
+  Rice::Array rb_patch_make_from_text_and_diff(std::string text1, Rice::Array array){
+    Diffs diffs = diffsFromRubyArray(array);
+    Patches patches = patch_make(text1, diffs);
+    return rubyArrayFromPatches(patches);
+  }
+
+  Rice::Array rb_patch_apply(Rice::Array patch_array, std::string text_1){
+    Patches patches = patchesFromRubyArray(patch_array);
+    std::pair<std::string, std::vector<bool> > results = patch_apply(patches,text_1);
+    Rice::Array out;
+    out.push(results.first);
+    
+    Rice::Array bool_array;
+    for (size_t i = 0; i < results.second.size(); ++i){
+      bool_array.push(results.second[i] ? true : false);
+    }
+    out.push(bool_array);
+    
+    return out;
+  }
+
 };
 
 void register_dmp(){
@@ -139,5 +255,27 @@ void register_dmp(){
   rb_cDMP.define_method("match_main", &rb_diff_match_patch::rb_match_main);
   rb_cDMP.define_method("match_threshold", &rb_diff_match_patch::GetMatch_Threshold);
   rb_cDMP.define_method("match_threshold=", &rb_diff_match_patch::SetMatch_Threshold);
+  rb_cDMP.define_method("match_distance", &rb_diff_match_patch::GetMatch_Distance);
+  rb_cDMP.define_method("match_distance=", &rb_diff_match_patch::SetMatch_Distance);
+
+
+  rb_cDMP.define_method("patch_delete_threshold", &rb_diff_match_patch::GetPatch_DeleteThreshold);
+  rb_cDMP.define_method("patch_delete_threshold=", &rb_diff_match_patch::SetPatch_DeleteThreshold);
+  rb_cDMP.define_method("patch_from_text", &rb_diff_match_patch::rb_patch_fromText);
+  rb_cDMP.define_method("patch_to_text", &rb_diff_match_patch::rb_patch_toText);
+  rb_cDMP.define_method("__patch_make_from_texts__", &rb_diff_match_patch::rb_patch_make_from_texts);
+  rb_cDMP.define_method("__patch_make_from_diffs__", &rb_diff_match_patch::rb_patch_make_from_diffs);
+  rb_cDMP.define_method("__patch_make_from_text_and_diff__", &rb_diff_match_patch::rb_patch_make_from_text_and_diff);
+  rb_cDMP.define_method("patch_apply", &rb_diff_match_patch::rb_patch_apply);
+
+  Rice::Data_Type< rb_patch_wrapper > rb_cPatch = Rice::define_class< rb_patch_wrapper >("Patch");
+  rb_cPatch.define_method("to_string", &rb_patch_wrapper::toString);
+  rb_cPatch.define_method("is_null?", &rb_patch_wrapper::isNull);
+  rb_cPatch.define_method("start_1", &rb_patch_wrapper::start1);
+  rb_cPatch.define_method("start_2", &rb_patch_wrapper::start2);
+  rb_cPatch.define_method("length_1", &rb_patch_wrapper::length1);
+  rb_cPatch.define_method("length_2", &rb_patch_wrapper::length2);
 
 }
+
+#undef dmp
