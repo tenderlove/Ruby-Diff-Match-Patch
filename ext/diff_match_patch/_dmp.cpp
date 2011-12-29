@@ -2,6 +2,11 @@
 
 #define dmp diff_match_patch<std::string>
 
+
+/*
+* A lightweight wrapper around Patch, so Rice can get at it. Delegates 
+* to the patch as necissary
+*/
 class rb_patch_wrapper{
   
   public:
@@ -36,6 +41,11 @@ class rb_patch_wrapper{
 
 };
 
+
+/*
+* A subclass of diff_match_patch<std::string>, adding methods for
+* translating between C++ and Ruby.
+*/
 class rb_diff_match_patch : dmp {
 
 protected:
