@@ -1,4 +1,4 @@
-= diff_patch_match
+= diff_patch_match_native
 
 https://github.com/elliotlaster/Ruby-Diff-Match-Patch
 
@@ -42,7 +42,7 @@ The API conforms to the standard at http://code.google.com/p/google-diff-match-p
 
 == INSTALL:
 
-gem install diff-match-patch
+gem install diff_match_patch_native
 
 == LICENSE:
 

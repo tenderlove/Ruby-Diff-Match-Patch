@@ -1,5 +1,5 @@
 require "test/unit"
-require File.join(File.dirname(File.expand_path(__FILE__)), '../', 'lib', 'diff_match_patch')
+require File.join(File.dirname(File.expand_path(__FILE__)), '../', 'lib', 'diff_match_patch_native')
 
 class TestDiffMatchPatch < Test::Unit::TestCase
 

@@ -10,7 +10,7 @@ require 'rake/extensiontask'
 
 Hoe.plugin :bundler, :rubygems, :doofus, :git
 
-Hoe.spec 'diff_match_patch' do
+Hoe.spec 'diff_match_patch_native' do
   developer('Elliot Laster', 'elliotlaster@gmail.com')
   self.version = '1.0.0'
   self.readme_file   = 'README.rdoc'
@@ -18,10 +18,10 @@ Hoe.spec 'diff_match_patch' do
   self.extra_deps << ['rice', '>= 1.4.2']
   self.extra_dev_deps << ['rake-compiler', '>= 0']
 
-  self.spec_extras = { :extensions => ["ext/diff_match_patch/extconf.rb"] }
+  self.spec_extras = { :extensions => ["ext/diff_match_patch_native/extconf.rb"] }
 
-  Rake::ExtensionTask.new('diff_match_patch', spec) do |ext|
-    ext.lib_dir = File.join('lib', 'diff_match_patch')
+  Rake::ExtensionTask.new('diff_match_patch_native', spec) do |ext|
+    ext.lib_dir = File.join('lib', 'diff_match_patch_native')
   end
 end
 
