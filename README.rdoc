@@ -1,0 +1,71 @@
+= diff_patch_match
+
+Ruby bindings for the C++ version of google-diff-match-patch:
+http://code.google.com/p/google-diff-match-patch/
+
+== DESCRIPTION:
+
+The Diff Match and Patch libraries offer robust algorithms to perform the operations required for synchronizing plain text.
+
+== SYNOPSIS:
+
+The API conforms to the standard at http://code.google.com/p/google-diff-match-patch/wiki/API
+
+  dmp = DiffMatchPatch.new
+
+  # Diff-ing
+  dmp.diff_main("Apples are a fruit.", "Bananas are also fruit.", false)
+  => [[-1, "Apple"], [1, "Banana"], [0, "s are a"], [1, "lso"], [0, " fruit."]]
+
+  # Match-ing (return the index of the first match)
+  dmp.match_main("abcdef", "de", 3)
+  => 3
+
+  # Patch-ing
+  text_1 = "The quick brown fox jumps over the lazy dog."
+  text_2 = "That quick brown fox jumped over a lazy dog."
+  
+  patches = dmp.patch_make(text_2, text_1)
+
+  dmp.patch_to_text(patches)
+  => "@@ -1,8 +1,7 @@\n Th\n-at\n+e\n  qui\n@@ -21,17 +21,18 @@\n jump\n-ed\n+s\n  over \n-a\n+the\n  laz\n"
+
+  dmp.patch_apply(patches, text_2)
+  => ["The quick brown fox jumps over the lazy dog.", [true, true]]
+
+== REQUIREMENTS:
+
+* Rake
+* Rice >= 1.4.2
+
+== INSTALL:
+
+gem install diff-match-patch
+
+== LICENSE:
+
+
+diff_match_patch-stl.h is Copyright 2008 Google Inc, and licensed under 
+the Apache license. See 
+src/include/diff_match_patch-stl/diff_match_patch.h
+
+Copyright (c) 2011 Elliot Laster
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
