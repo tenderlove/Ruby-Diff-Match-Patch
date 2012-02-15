@@ -1,5 +1,7 @@
 = diff_patch_match
 
+https://github.com/elliotlaster/Ruby-Diff-Match-Patch
+
 Ruby bindings for the C++ version of google-diff-match-patch:
 http://code.google.com/p/google-diff-match-patch/
 
