@@ -6,9 +6,6 @@ ext/diff_match_patch_native/_dmp.cpp
 ext/diff_match_patch_native/_dmp.h
 ext/diff_match_patch_native/diff_match_patch.cpp
 ext/diff_match_patch_native/extconf.rb
-lib/diff_match_patch/diff_match_patch.bundle
 lib/diff_match_patch_native.rb
-lib/diff_match_patch_native/diff_match_patch.bundle
-lib/diff_match_patch_native/diff_match_patch_native.bundle
 src/include/diff_match_patch-stl/diff_match_patch.h
 test/test_diff_patch_match.rb
