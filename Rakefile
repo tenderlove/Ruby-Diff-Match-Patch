@@ -12,7 +12,7 @@ Hoe.plugin :bundler, :rubygems, :doofus, :git
 
 Hoe.spec 'diff_match_patch_native' do
   developer('Elliot Laster', 'elliotlaster@gmail.com')
-  self.version = '1.0.0'
+  self.version = '1.0.1'
   self.readme_file   = 'README.rdoc'
   self.history_file  = 'History.txt'
   self.extra_deps << ['rice', '>= 1.4.2']
