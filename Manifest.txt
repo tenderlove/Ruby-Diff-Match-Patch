@@ -1,8 +1,12 @@
-.autotest
 History.txt
 Manifest.txt
-README.txt
+README.rdoc
 Rakefile
-bin/diff_patch_match
-lib/diff_patch_match.rb
+ext/diff_match_patch/_dmp.cpp
+ext/diff_match_patch/_dmp.h
+ext/diff_match_patch/diff_match_patch.cpp
+ext/diff_match_patch/extconf.rb
+lib/diff_match_patch.rb
+lib/diff_match_patch/diff_match_patch.bundle
+src/include/diff_match_patch-stl/diff_match_patch.h
 test/test_diff_patch_match.rb
