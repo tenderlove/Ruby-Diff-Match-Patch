@@ -316,6 +316,20 @@ static VALUE rb_set_diff_timeout(VALUE self, VALUE v) {
   return v;
 }
 
+static VALUE rb_diff_edit_cost(VALUE self) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+  return DBL2NUM(ctx->Diff_EditCost);
+}
+
+static VALUE rb_set_diff_edit_cost(VALUE self, VALUE v) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+  ctx->Diff_EditCost = NUM2DBL(v);
+
+  return v;
+}
+
 void register_dmp(){
 
   cDiffMatchPatch = rb_define_class("DiffMatchPatch", rb_cObject);
@@ -324,10 +338,10 @@ void register_dmp(){
   rb_define_method(cDiffMatchPatch, "diff_main", (ruby_method_vararg *)rb_diff_main, 3);
   rb_define_method(cDiffMatchPatch, "diff_timeout", (ruby_method_vararg *)rb_diff_timeout, 0);
   rb_define_method(cDiffMatchPatch, "diff_timeout=", (ruby_method_vararg *)rb_set_diff_timeout, 1);
+  rb_define_method(cDiffMatchPatch, "diff_edit_cost", (ruby_method_vararg *)rb_diff_edit_cost, 0);
+  rb_define_method(cDiffMatchPatch, "diff_edit_cost=", (ruby_method_vararg *)rb_set_diff_edit_cost, 1);
 
   /*
-  rb_cDMP.define_method("diff_timeout", &rb_diff_match_patch::GetDiff_Timeout);
-  rb_cDMP.define_method("diff_timeout=", &rb_diff_match_patch::SetDiff_Timeout);
   rb_cDMP.define_method("diff_edit_cost", &rb_diff_match_patch::GetDiff_EditCost);
   rb_cDMP.define_method("diff_edit_cost=", &rb_diff_match_patch::SetDiff_EditCost);
   rb_cDMP.define_method("diff_cleanup_semantic!", &rb_diff_match_patch::rb_diff_cleanupSemantic);
