@@ -392,6 +392,16 @@ static VALUE rb_diff_levenshtein(VALUE self, VALUE list) {
   return INT2NUM(ctx->diff_levenshtein(diffs));
 }
 
+static VALUE rb_diff_pretty_html(VALUE self, VALUE list) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+
+  dmp::Diffs diffs = diffsFromRubyArray(list, true);
+  std::string str = ctx->diff_prettyHtml(diffs);
+
+  return rb_str_new(str.c_str(), str.size());
+}
+
 void register_dmp(){
 
   cDiffMatchPatch = rb_define_class("DiffMatchPatch", rb_cObject);
@@ -405,9 +415,9 @@ void register_dmp(){
   rb_define_method(cDiffMatchPatch, "diff_cleanup_semantic!", (ruby_method_vararg *)rb_diff_cleanup_semantic, 1);
   rb_define_method(cDiffMatchPatch, "diff_cleanup_efficiency!", (ruby_method_vararg *)rb_diff_cleanup_efficiency, 1);
   rb_define_method(cDiffMatchPatch, "diff_levenshtein", (ruby_method_vararg *)rb_diff_levenshtein, 1);
+  rb_define_method(cDiffMatchPatch, "diff_pretty_html", (ruby_method_vararg *)rb_diff_pretty_html, 1);
 
   /*
-  rb_cDMP.define_method("diff_pretty_html", &rb_diff_match_patch::rb_diff_prettyHtml);
 
   rb_cDMP.define_method("match_main", &rb_diff_match_patch::rb_match_main);
   rb_cDMP.define_method("match_threshold", &rb_diff_match_patch::GetMatch_Threshold);
