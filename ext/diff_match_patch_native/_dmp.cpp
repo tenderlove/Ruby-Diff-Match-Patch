@@ -282,6 +282,42 @@ static VALUE rubyArrayFromDiffsWithArray(dmp::Diffs diffs, VALUE out){
   return out;
 }
 
+dmp::Diffs diffsFromRubyArray(VALUE array, bool clearArray){
+  dmp::Diffs diffs;
+  size_t arraySize = RARRAY_LEN(array);
+
+  for (size_t i = 0; i < arraySize; ++i){
+    VALUE rb_diff;
+    VALUE diffstr;
+    char * c_diffstr;
+
+    if (clearArray) {
+      rb_diff = rb_ary_shift(array);
+    } else {
+      rb_diff = RARRAY_AREF(array, i);
+    }
+
+    dmp::Operation op;
+    switch (NUM2INT(RARRAY_AREF(rb_diff, 0))) {
+      case 1:
+        op = dmp::INSERT;
+        break;
+      case 0:
+        op = dmp::EQUAL;
+        break;
+      case -1:
+        op = dmp::DELETE;
+        break;
+    }
+    diffstr = RARRAY_AREF(rb_diff, 1);
+    c_diffstr = StringValuePtr(diffstr);
+    dmp::Diff ddiff = dmp::Diff(op, dmp::string_t(c_diffstr));
+    diffs.push_back(ddiff);
+  }
+
+  return diffs;
+}
+
 static VALUE rb_diff_main(VALUE self, VALUE text1, VALUE text2, VALUE lines)
 {
   dmp * ctx;
@@ -330,6 +366,15 @@ static VALUE rb_set_diff_edit_cost(VALUE self, VALUE v) {
   return v;
 }
 
+static VALUE rb_diff_cleanup_semantic(VALUE self, VALUE list) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+
+  dmp::Diffs diffs = diffsFromRubyArray(list, true);
+  ctx->diff_cleanupSemantic(diffs);
+  return rubyArrayFromDiffsWithArray(diffs, list);
+}
+
 void register_dmp(){
 
   cDiffMatchPatch = rb_define_class("DiffMatchPatch", rb_cObject);
@@ -340,10 +385,9 @@ void register_dmp(){
   rb_define_method(cDiffMatchPatch, "diff_timeout=", (ruby_method_vararg *)rb_set_diff_timeout, 1);
   rb_define_method(cDiffMatchPatch, "diff_edit_cost", (ruby_method_vararg *)rb_diff_edit_cost, 0);
   rb_define_method(cDiffMatchPatch, "diff_edit_cost=", (ruby_method_vararg *)rb_set_diff_edit_cost, 1);
+  rb_define_method(cDiffMatchPatch, "diff_cleanup_semantic!", (ruby_method_vararg *)rb_diff_cleanup_semantic, 1);
 
   /*
-  rb_cDMP.define_method("diff_edit_cost", &rb_diff_match_patch::GetDiff_EditCost);
-  rb_cDMP.define_method("diff_edit_cost=", &rb_diff_match_patch::SetDiff_EditCost);
   rb_cDMP.define_method("diff_cleanup_semantic!", &rb_diff_match_patch::rb_diff_cleanupSemantic);
   rb_cDMP.define_method("diff_cleanup_efficiency!", &rb_diff_match_patch::rb_diff_cleanupEfficiency);
   rb_cDMP.define_method("diff_levenshtein", &rb_diff_match_patch::rb_diff_levenshtein);
