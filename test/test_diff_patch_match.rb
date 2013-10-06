@@ -1,7 +1,7 @@
-require "test/unit"
-require File.join(File.dirname(File.expand_path(__FILE__)), '../', 'lib', 'diff_match_patch_native')
+require "minitest/autorun"
+require 'diff_match_patch'
 
-class TestDiffMatchPatch < Test::Unit::TestCase
+class TestDiffMatchPatch < MiniTest::Test
 
   def setup
     @dmp = DiffMatchPatch.new

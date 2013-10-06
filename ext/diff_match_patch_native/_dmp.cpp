@@ -310,10 +310,6 @@ void register_dmp(){
   rb_define_method(cDiffMatchPatch, "diff_main", (ruby_method_vararg *)rb_diff_main, 3);
 
   /*
-  Rice::Data_Type< rb_diff_match_patch > rb_cDMP = Rice::define_class< rb_diff_match_patch >("DiffMatchPatch");
-  rb_cDMP.define_constructor(Rice::Constructor<rb_diff_match_patch>());
-
-  rb_cDMP.define_method("diff_main", &rb_diff_match_patch::rb_diff_main);
   rb_cDMP.define_method("diff_timeout", &rb_diff_match_patch::GetDiff_Timeout);
   rb_cDMP.define_method("diff_timeout=", &rb_diff_match_patch::SetDiff_Timeout);
   rb_cDMP.define_method("diff_edit_cost", &rb_diff_match_patch::GetDiff_EditCost);

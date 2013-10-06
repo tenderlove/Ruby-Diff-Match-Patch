@@ -1,14 +1,9 @@
 # -*- ruby -*-
 require 'rubygems'
-begin
-  require 'rake/dsl_definition'
-rescue LoadError 
-  nil
-end
 require 'hoe'
 require 'rake/extensiontask'
 
-Hoe.plugin :bundler, :rubygems, :doofus, :git
+Hoe.plugin :bundler, :rubygems, :doofus, :git, :minitest
 
 Hoe.spec 'diff_match_patch_native' do
   developer('Elliot Laster', 'elliotlaster@gmail.com')
