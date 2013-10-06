@@ -1,15 +1,16 @@
 #ifndef ruby_DMP_HPP
 #define ruby_DMP_HPP
 
-#include <rice/Object.hpp>
-#include <rice/Data_Type.hpp>
-#include <rice/Array.hpp> 
-#include "diff_match_patch-stl/diff_match_patch.h"
+#ifdef __cplusplus
 #include <string>
-#include <rice/Constructor.hpp>
+#include "diff_match_patch-stl/diff_match_patch.h"
+#endif
+
+#include <ruby.h>
+#include <string.h>
 
 #define dmp diff_match_patch<std::string>
-
+typedef VALUE (ruby_method_vararg)(...);
 
 void register_dmp();
 

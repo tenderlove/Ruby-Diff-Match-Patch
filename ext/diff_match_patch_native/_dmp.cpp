@@ -1,8 +1,9 @@
 #include "_dmp.h"
 
-#define dmp diff_match_patch<std::string>
+#include <string>
+#include "diff_match_patch-stl/diff_match_patch.h"
 
-
+#if 0
 /*
 * A lightweight wrapper around Patch, so Rice can get at it. Delegates 
 * to the patch as necissary
@@ -244,8 +245,71 @@ public:
 
 };
 
+#endif
+
+VALUE cDiffMatchPatch;
+
+static void dealloc(void * ctx) {
+  delete reinterpret_cast<dmp *>(ctx);
+}
+
+static VALUE allocate(VALUE klass) {
+  dmp * ctx = new dmp();
+
+  return Data_Wrap_Struct(klass, 0, dealloc, ctx);
+}
+
+static VALUE rubyArrayFromDiffsWithArray(dmp::Diffs diffs, VALUE out){
+  dmp::Diffs::iterator current_diff;
+  for (current_diff = diffs.begin(); current_diff != diffs.end(); ++current_diff) {
+    VALUE rb_diff = rb_ary_new();
+    switch (current_diff->operation){
+      case dmp::INSERT:
+        rb_ary_push(rb_diff, INT2NUM(1));
+        break;
+      case dmp::DELETE:
+        rb_ary_push(rb_diff, INT2NUM(-1));
+        break;
+      case dmp::EQUAL:
+        rb_ary_push(rb_diff, INT2NUM(0));
+        break;
+    }
+    rb_ary_push(rb_diff, rb_str_new(current_diff->text.c_str(),
+                                    current_diff->text.size()));
+    rb_ary_push(out, rb_diff);
+  }
+
+  return out;
+}
+
+static VALUE rb_diff_main(VALUE self, VALUE text1, VALUE text2, VALUE lines)
+{
+  dmp * ctx;
+  bool flag;
+  VALUE rb_diffs;
+  Data_Get_Struct(self, dmp, ctx);
+
+  if (lines == Qtrue)
+    flag = true;
+  else
+    flag = false;
+
+  dmp::Diffs diffs = ctx->diff_main(StringValuePtr(text1),
+                               StringValuePtr(text2),
+                               flag);
+
+  rb_diffs = rb_ary_new();
+  return rubyArrayFromDiffsWithArray(diffs, rb_diffs);
+}
+
 void register_dmp(){
 
+  cDiffMatchPatch = rb_define_class("DiffMatchPatch", rb_cObject);
+
+  rb_define_alloc_func(cDiffMatchPatch, allocate);
+  rb_define_method(cDiffMatchPatch, "diff_main", (ruby_method_vararg *)rb_diff_main, 3);
+
+  /*
   Rice::Data_Type< rb_diff_match_patch > rb_cDMP = Rice::define_class< rb_diff_match_patch >("DiffMatchPatch");
   rb_cDMP.define_constructor(Rice::Constructor<rb_diff_match_patch>());
 
@@ -281,7 +345,7 @@ void register_dmp(){
   rb_cPatch.define_method("start_2", &rb_patch_wrapper::start2);
   rb_cPatch.define_method("length_1", &rb_patch_wrapper::length1);
   rb_cPatch.define_method("length_2", &rb_patch_wrapper::length2);
-
+  */
 }
 
 #undef dmp
