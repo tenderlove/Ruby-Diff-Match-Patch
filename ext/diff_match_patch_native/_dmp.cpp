@@ -384,6 +384,14 @@ static VALUE rb_diff_cleanup_efficiency(VALUE self, VALUE list) {
   return rubyArrayFromDiffsWithArray(diffs, list);
 }
 
+static VALUE rb_diff_levenshtein(VALUE self, VALUE list) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+
+  dmp::Diffs diffs = diffsFromRubyArray(list, true);
+  return INT2NUM(ctx->diff_levenshtein(diffs));
+}
+
 void register_dmp(){
 
   cDiffMatchPatch = rb_define_class("DiffMatchPatch", rb_cObject);
@@ -396,10 +404,9 @@ void register_dmp(){
   rb_define_method(cDiffMatchPatch, "diff_edit_cost=", (ruby_method_vararg *)rb_set_diff_edit_cost, 1);
   rb_define_method(cDiffMatchPatch, "diff_cleanup_semantic!", (ruby_method_vararg *)rb_diff_cleanup_semantic, 1);
   rb_define_method(cDiffMatchPatch, "diff_cleanup_efficiency!", (ruby_method_vararg *)rb_diff_cleanup_efficiency, 1);
+  rb_define_method(cDiffMatchPatch, "diff_levenshtein", (ruby_method_vararg *)rb_diff_levenshtein, 1);
 
   /*
-  rb_cDMP.define_method("diff_cleanup_efficiency!", &rb_diff_match_patch::rb_diff_cleanupEfficiency);
-  rb_cDMP.define_method("diff_levenshtein", &rb_diff_match_patch::rb_diff_levenshtein);
   rb_cDMP.define_method("diff_pretty_html", &rb_diff_match_patch::rb_diff_prettyHtml);
 
   rb_cDMP.define_method("match_main", &rb_diff_match_patch::rb_match_main);
