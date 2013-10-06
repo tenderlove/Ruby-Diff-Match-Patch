@@ -302,12 +302,28 @@ static VALUE rb_diff_main(VALUE self, VALUE text1, VALUE text2, VALUE lines)
   return rubyArrayFromDiffsWithArray(diffs, rb_diffs);
 }
 
+static VALUE rb_diff_timeout(VALUE self) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+  return DBL2NUM(ctx->Diff_Timeout);
+}
+
+static VALUE rb_set_diff_timeout(VALUE self, VALUE v) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+  ctx->Diff_Timeout = NUM2DBL(v);
+
+  return v;
+}
+
 void register_dmp(){
 
   cDiffMatchPatch = rb_define_class("DiffMatchPatch", rb_cObject);
 
   rb_define_alloc_func(cDiffMatchPatch, allocate);
   rb_define_method(cDiffMatchPatch, "diff_main", (ruby_method_vararg *)rb_diff_main, 3);
+  rb_define_method(cDiffMatchPatch, "diff_timeout", (ruby_method_vararg *)rb_diff_timeout, 0);
+  rb_define_method(cDiffMatchPatch, "diff_timeout=", (ruby_method_vararg *)rb_set_diff_timeout, 1);
 
   /*
   rb_cDMP.define_method("diff_timeout", &rb_diff_match_patch::GetDiff_Timeout);
