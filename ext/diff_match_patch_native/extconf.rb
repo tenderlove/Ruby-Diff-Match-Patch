@@ -1,4 +1,3 @@
-# Compile with Rice rather than straight mkmf
 require 'mkmf'
 
 dmp_stl_path = File.join(File.dirname(File.expand_path(__FILE__)), '..', '..', 'src', 'include')
