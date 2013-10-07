@@ -553,6 +553,16 @@ static VALUE rb_patch_apply(VALUE self, VALUE patch_array, VALUE text) {
   return out;
 }
 
+static VALUE rb_patch_to_string(VALUE self) {
+  rb_patch_wrapper * patch;
+  Data_Get_Struct(self, rb_patch_wrapper, patch);
+
+  dmp::Patch the_patch = patch->patch;
+  dmp::string_t str = the_patch.toString();
+
+  return rb_str_new(str.c_str(), str.size());
+}
+
 void register_dmp(){
 
   cDiffMatchPatch = rb_define_class("DiffMatchPatch", rb_cObject);
@@ -582,10 +592,8 @@ void register_dmp(){
   rb_define_method(cDiffMatchPatch, "__patch_make_from_text_and_diff__", (ruby_method_vararg *)rb_patch_make_from_text_and_diff, 2);
   rb_define_method(cDiffMatchPatch, "patch_apply", (ruby_method_vararg *)rb_patch_apply, 2);
 
+  rb_define_method(cPatch, "to_string", (ruby_method_vararg *)rb_patch_to_string, 0);
   /*
-  rb_cDMP.define_method("patch_apply", &rb_diff_match_patch::rb_patch_apply);
-
-  Rice::Data_Type< rb_patch_wrapper > rb_cPatch = Rice::define_class< rb_patch_wrapper >("Patch");
   rb_cPatch.define_method("to_string", &rb_patch_wrapper::toString);
   rb_cPatch.define_method("is_null?", &rb_patch_wrapper::isNull);
   rb_cPatch.define_method("start_1", &rb_patch_wrapper::start1);
