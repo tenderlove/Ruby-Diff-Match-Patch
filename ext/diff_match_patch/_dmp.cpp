@@ -147,7 +147,7 @@ static VALUE rb_diff_levenshtein(VALUE self, VALUE list) {
   dmp * ctx;
   Data_Get_Struct(self, dmp, ctx);
 
-  dmp::Diffs diffs = diffsFromRubyArray(list, true);
+  dmp::Diffs diffs = diffsFromRubyArray(list, false);
   return INT2NUM(ctx->diff_levenshtein(diffs));
 }
 
@@ -155,7 +155,7 @@ static VALUE rb_diff_pretty_html(VALUE self, VALUE list) {
   dmp * ctx;
   Data_Get_Struct(self, dmp, ctx);
 
-  dmp::Diffs diffs = diffsFromRubyArray(list, true);
+  dmp::Diffs diffs = diffsFromRubyArray(list, false);
   std::string str = ctx->diff_prettyHtml(diffs);
 
   return rb_str_new(str.c_str(), str.size());
