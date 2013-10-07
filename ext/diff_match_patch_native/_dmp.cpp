@@ -427,6 +427,22 @@ static VALUE rb_set_match_threshold(VALUE self, VALUE value) {
   return value;
 }
 
+static VALUE rb_match_distance(VALUE self) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+
+  return INT2NUM(ctx->Match_Distance);
+}
+
+static VALUE rb_set_match_distance(VALUE self, VALUE value) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+
+  ctx->Match_Distance = NUM2INT(value);
+
+  return value;
+}
+
 void register_dmp(){
 
   cDiffMatchPatch = rb_define_class("DiffMatchPatch", rb_cObject);
@@ -444,6 +460,8 @@ void register_dmp(){
   rb_define_method(cDiffMatchPatch, "match_main", (ruby_method_vararg *)rb_match_main, 3);
   rb_define_method(cDiffMatchPatch, "match_threshold", (ruby_method_vararg *)rb_match_threshold, 0);
   rb_define_method(cDiffMatchPatch, "match_threshold=", (ruby_method_vararg *)rb_set_match_threshold, 1);
+  rb_define_method(cDiffMatchPatch, "match_distance", (ruby_method_vararg *)rb_match_distance, 0);
+  rb_define_method(cDiffMatchPatch, "match_distance=", (ruby_method_vararg *)rb_set_match_distance, 1);
 
   /*
   rb_cDMP.define_method("match_distance", &rb_diff_match_patch::GetMatch_Distance);
