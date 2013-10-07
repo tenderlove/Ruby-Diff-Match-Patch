@@ -532,6 +532,27 @@ static VALUE rb_patch_make_from_text_and_diff(VALUE self, VALUE text, VALUE arra
   return rubyArrayFromPatches(patches);
 }
 
+static VALUE rb_patch_apply(VALUE self, VALUE patch_array, VALUE text) {
+  dmp * ctx;
+
+  VALUE out = rb_ary_new();
+  VALUE bool_array = rb_ary_new();
+  Data_Get_Struct(self, dmp, ctx);
+
+  dmp::Patches patches = patchesFromRubyArray(patch_array);
+  std::pair<std::string, std::vector<bool> > results;
+
+  results = ctx->patch_apply(patches, dmp::string_t(StringValuePtr(text)));
+  rb_ary_push(out, rb_str_new(results.first.c_str(), results.first.size()));
+
+  for (size_t i = 0; i < results.second.size(); ++i){
+    rb_ary_push(bool_array, results.second[i] ? Qtrue : Qfalse);
+  }
+  rb_ary_push(out, bool_array);
+
+  return out;
+}
+
 void register_dmp(){
 
   cDiffMatchPatch = rb_define_class("DiffMatchPatch", rb_cObject);
@@ -559,9 +580,9 @@ void register_dmp(){
   rb_define_method(cDiffMatchPatch, "__patch_make_from_texts__", (ruby_method_vararg *)rb_patch_make_from_texts, 2);
   rb_define_method(cDiffMatchPatch, "__patch_make_from_diffs__", (ruby_method_vararg *)rb_patch_make_from_diffs, 1);
   rb_define_method(cDiffMatchPatch, "__patch_make_from_text_and_diff__", (ruby_method_vararg *)rb_patch_make_from_text_and_diff, 2);
+  rb_define_method(cDiffMatchPatch, "patch_apply", (ruby_method_vararg *)rb_patch_apply, 2);
 
   /*
-  rb_cDMP.define_method("__patch_make_from_text_and_diff__", &rb_diff_match_patch::rb_patch_make_from_text_and_diff);
   rb_cDMP.define_method("patch_apply", &rb_diff_match_patch::rb_patch_apply);
 
   Rice::Data_Type< rb_patch_wrapper > rb_cPatch = Rice::define_class< rb_patch_wrapper >("Patch");
