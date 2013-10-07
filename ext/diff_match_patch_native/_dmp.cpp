@@ -402,6 +402,15 @@ static VALUE rb_diff_pretty_html(VALUE self, VALUE list) {
   return rb_str_new(str.c_str(), str.size());
 }
 
+static VALUE rb_match_main(VALUE self, VALUE text, VALUE pattern, VALUE loc) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+
+  return INT2NUM(ctx->match_main(dmp::string_t(StringValuePtr(text)),
+                                 dmp::string_t(StringValuePtr(pattern)),
+                                 NUM2INT(loc)));
+}
+
 void register_dmp(){
 
   cDiffMatchPatch = rb_define_class("DiffMatchPatch", rb_cObject);
@@ -416,6 +425,7 @@ void register_dmp(){
   rb_define_method(cDiffMatchPatch, "diff_cleanup_efficiency!", (ruby_method_vararg *)rb_diff_cleanup_efficiency, 1);
   rb_define_method(cDiffMatchPatch, "diff_levenshtein", (ruby_method_vararg *)rb_diff_levenshtein, 1);
   rb_define_method(cDiffMatchPatch, "diff_pretty_html", (ruby_method_vararg *)rb_diff_pretty_html, 1);
+  rb_define_method(cDiffMatchPatch, "match_main", (ruby_method_vararg *)rb_match_main, 3);
 
   /*
 
