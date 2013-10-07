@@ -101,8 +101,8 @@ static VALUE rb_diff_main(VALUE self, VALUE text1, VALUE text2, VALUE lines)
   else
     flag = false;
 
-  dmp::Diffs diffs = ctx->diff_main(StringValuePtr(text1),
-                               StringValuePtr(text2),
+  dmp::Diffs diffs = ctx->diff_main(dmp::string_t(StringValuePtr(text1)),
+                               dmp::string_t(StringValuePtr(text2)),
                                flag);
 
   rb_diffs = rb_ary_new();
