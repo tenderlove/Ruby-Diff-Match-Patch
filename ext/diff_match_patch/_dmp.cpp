@@ -4,6 +4,7 @@
 #include "diff_match_patch-stl/diff_match_patch.h"
 
 VALUE cPatch;
+VALUE cDiffMatchPatch;
 
 #define RB_DEFINE_METHOD(klass, sym, fun, arv) \
   rb_define_method(klass, sym, (ruby_method_vararg *)fun, arv);
@@ -19,15 +20,13 @@ class rb_patch_wrapper{
     rb_patch_wrapper(dmp::Patch &the_patch) : patch(the_patch) {}
 };
 
-VALUE cDiffMatchPatch;
-
-static void dealloc(void * ctx) {
-  delete reinterpret_cast<dmp *>(ctx);
+static void dealloc(void * ctx) { delete reinterpret_cast<dmp *>(ctx); }
+static void dealloc_patch(void * ctx) {
+  delete reinterpret_cast<rb_patch_wrapper *>(ctx);
 }
 
 static VALUE allocate(VALUE klass) {
   dmp * ctx = new dmp();
-
   return Data_Wrap_Struct(klass, 0, dealloc, ctx);
 }
 
@@ -237,7 +236,7 @@ static VALUE rubyArrayFromPatches(dmp::Patches patches){
 
   for (current_patch = patches.begin(); current_patch != patches.end(); ++current_patch){
     rb_patch_wrapper * p = new rb_patch_wrapper(*current_patch);
-    VALUE patch = Data_Wrap_Struct(cPatch, 0, 0, p);
+    VALUE patch = Data_Wrap_Struct(cPatch, 0, dealloc_patch, p);
     rb_ary_push(out, patch);
   }
 
