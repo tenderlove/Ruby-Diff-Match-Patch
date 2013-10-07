@@ -2,6 +2,6 @@
 
 extern "C"
 
-void Init_diff_match_patch_native() {
+void Init_diff_match_patch() {
   register_dmp();
 }

@@ -12,9 +12,9 @@ Hoe.spec 'diff_match_patch_native' do
   self.history_file  = 'History.txt'
   self.extra_dev_deps << ['rake-compiler', '>= 0']
 
-  self.spec_extras = { :extensions => ["ext/diff_match_patch_native/extconf.rb"] }
+  self.spec_extras = { :extensions => ["ext/diff_match_patch/extconf.rb"] }
 
-  Rake::ExtensionTask.new('diff_match_patch_native', spec)
+  Rake::ExtensionTask.new('diff_match_patch', spec)
 end
 
 Rake::Task[:test].prerequisites << :compile

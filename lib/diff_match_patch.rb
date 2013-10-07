@@ -1,4 +1,4 @@
-require 'diff_match_patch_native'
+require 'diff_match_patch.so'
 
 class DiffMatchPatch
   VERSION = '1.0.1'
