@@ -49,7 +49,7 @@ static VALUE rubyArrayFromDiffsWithArray(dmp::Diffs diffs, VALUE out){
   return out;
 }
 
-dmp::Diffs diffsFromRubyArray(VALUE array, bool clearArray){
+dmp::Diffs diffsFromRubyArray(VALUE array){
   dmp::Diffs diffs;
   size_t arraySize = RARRAY_LEN(array);
 
@@ -58,11 +58,7 @@ dmp::Diffs diffsFromRubyArray(VALUE array, bool clearArray){
     VALUE diffstr;
     char * c_diffstr;
 
-    if (clearArray) {
-      rb_diff = rb_ary_shift(array);
-    } else {
-      rb_diff = RARRAY_AREF(array, i);
-    }
+    rb_diff = RARRAY_AREF(array, i);
 
     dmp::Operation op;
     switch (NUM2INT(RARRAY_AREF(rb_diff, 0))) {
@@ -129,25 +125,25 @@ static VALUE rb_diff_cleanup_semantic(VALUE self, VALUE list) {
   dmp * ctx;
   Data_Get_Struct(self, dmp, ctx);
 
-  dmp::Diffs diffs = diffsFromRubyArray(list, true);
+  dmp::Diffs diffs = diffsFromRubyArray(list);
   ctx->diff_cleanupSemantic(diffs);
-  return rubyArrayFromDiffsWithArray(diffs, list);
+  return rubyArrayFromDiffsWithArray(diffs, rb_ary_new());
 }
 
 static VALUE rb_diff_cleanup_efficiency(VALUE self, VALUE list) {
   dmp * ctx;
   Data_Get_Struct(self, dmp, ctx);
 
-  dmp::Diffs diffs = diffsFromRubyArray(list, true);
+  dmp::Diffs diffs = diffsFromRubyArray(list);
   ctx->diff_cleanupEfficiency(diffs);
-  return rubyArrayFromDiffsWithArray(diffs, list);
+  return rubyArrayFromDiffsWithArray(diffs, rb_ary_new());
 }
 
 static VALUE rb_diff_levenshtein(VALUE self, VALUE list) {
   dmp * ctx;
   Data_Get_Struct(self, dmp, ctx);
 
-  dmp::Diffs diffs = diffsFromRubyArray(list, false);
+  dmp::Diffs diffs = diffsFromRubyArray(list);
   return INT2NUM(ctx->diff_levenshtein(diffs));
 }
 
@@ -155,7 +151,7 @@ static VALUE rb_diff_pretty_html(VALUE self, VALUE list) {
   dmp * ctx;
   Data_Get_Struct(self, dmp, ctx);
 
-  dmp::Diffs diffs = diffsFromRubyArray(list, false);
+  dmp::Diffs diffs = diffsFromRubyArray(list);
   std::string str = ctx->diff_prettyHtml(diffs);
 
   return rb_str_new(str.c_str(), str.size());
@@ -273,7 +269,7 @@ static VALUE rb_patch_make_from_diffs(VALUE self, VALUE array) {
   dmp * ctx;
   Data_Get_Struct(self, dmp, ctx);
 
-  dmp::Diffs diffs = diffsFromRubyArray(array, false);
+  dmp::Diffs diffs = diffsFromRubyArray(array);
   dmp::Patches patches = ctx->patch_make(diffs);
   return rubyArrayFromPatches(patches);
 }
@@ -282,7 +278,7 @@ static VALUE rb_patch_make_from_text_and_diff(VALUE self, VALUE text, VALUE arra
   dmp * ctx;
   Data_Get_Struct(self, dmp, ctx);
 
-  dmp::Diffs diffs = diffsFromRubyArray(array, false);
+  dmp::Diffs diffs = diffsFromRubyArray(array);
   dmp::Patches patches = ctx->patch_make(dmp::string_t(StringValuePtr(text)),
                                          diffs);
   return rubyArrayFromPatches(patches);
@@ -329,8 +325,8 @@ void Init_diff_match_patch(){
   RB_DEFINE_METHOD(cDiffMatchPatch, "diff_timeout=", rb_set_diff_timeout, 1);
   RB_DEFINE_METHOD(cDiffMatchPatch, "diff_edit_cost", rb_diff_edit_cost, 0);
   RB_DEFINE_METHOD(cDiffMatchPatch, "diff_edit_cost=", rb_set_diff_edit_cost, 1);
-  RB_DEFINE_METHOD(cDiffMatchPatch, "diff_cleanup_semantic!", rb_diff_cleanup_semantic, 1);
-  RB_DEFINE_METHOD(cDiffMatchPatch, "diff_cleanup_efficiency!", rb_diff_cleanup_efficiency, 1);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "diff_cleanup_semantic", rb_diff_cleanup_semantic, 1);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "diff_cleanup_efficiency", rb_diff_cleanup_efficiency, 1);
   RB_DEFINE_METHOD(cDiffMatchPatch, "diff_levenshtein", rb_diff_levenshtein, 1);
   RB_DEFINE_METHOD(cDiffMatchPatch, "diff_pretty_html", rb_diff_pretty_html, 1);
   RB_DEFINE_METHOD(cDiffMatchPatch, "match_main", rb_match_main, 3);
