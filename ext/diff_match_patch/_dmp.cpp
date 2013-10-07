@@ -92,17 +92,11 @@ dmp::Diffs diffsFromRubyArray(VALUE array, bool clearArray){
 static VALUE rb_diff_main(VALUE self, VALUE text1, VALUE text2, VALUE lines)
 {
   dmp * ctx;
-  bool flag;
   Data_Get_Struct(self, dmp, ctx);
-
-  if (lines == Qtrue)
-    flag = true;
-  else
-    flag = false;
 
   dmp::Diffs diffs = ctx->diff_main(dmp::string_t(StringValuePtr(text1)),
                                dmp::string_t(StringValuePtr(text2)),
-                               flag);
+                               RTEST(lines));
 
   return rubyArrayFromDiffsWithArray(diffs, rb_ary_new());
 }
