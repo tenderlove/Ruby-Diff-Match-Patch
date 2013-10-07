@@ -483,6 +483,27 @@ static VALUE rb_patch_from_text(VALUE self, VALUE text) {
   return rubyArrayFromPatches(patches);
 }
 
+dmp::Patches patchesFromRubyArray(VALUE array){
+  dmp::Patches patches;
+  for (size_t i = 0; i < RARRAY_LEN(array); ++i) {
+    rb_patch_wrapper * wrapper;
+    VALUE element = RARRAY_AREF(array, i);
+    Data_Get_Struct(element, rb_patch_wrapper, wrapper);
+    patches.push_back(wrapper->patch);
+  }
+  return patches;
+}
+
+static VALUE rb_patch_to_text(VALUE self, VALUE array) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+
+  dmp::Patches patches = patchesFromRubyArray(array);
+  dmp::string_t str = ctx->patch_toText(patches);
+
+  return rb_str_new(str.c_str(), str.size());
+}
+
 void register_dmp(){
 
   cDiffMatchPatch = rb_define_class("DiffMatchPatch", rb_cObject);
@@ -506,9 +527,9 @@ void register_dmp(){
   rb_define_method(cDiffMatchPatch, "patch_delete_threshold", (ruby_method_vararg *)rb_patch_delete_threshold, 0);
   rb_define_method(cDiffMatchPatch, "patch_delete_threshold=", (ruby_method_vararg *)rb_set_patch_delete_threshold, 1);
   rb_define_method(cDiffMatchPatch, "patch_from_text", (ruby_method_vararg *)rb_patch_from_text, 1);
+  rb_define_method(cDiffMatchPatch, "patch_to_text", (ruby_method_vararg *)rb_patch_to_text, 1);
 
   /*
-  rb_cDMP.define_method("patch_from_text", &rb_diff_match_patch::rb_patch_fromText);
   rb_cDMP.define_method("patch_to_text", &rb_diff_match_patch::rb_patch_toText);
   rb_cDMP.define_method("__patch_make_from_texts__", &rb_diff_match_patch::rb_patch_make_from_texts);
   rb_cDMP.define_method("__patch_make_from_diffs__", &rb_diff_match_patch::rb_patch_make_from_diffs);
