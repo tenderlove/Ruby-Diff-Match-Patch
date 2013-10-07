@@ -411,6 +411,22 @@ static VALUE rb_match_main(VALUE self, VALUE text, VALUE pattern, VALUE loc) {
                                  NUM2INT(loc)));
 }
 
+static VALUE rb_match_threshold(VALUE self) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+
+  return DBL2NUM(ctx->Match_Threshold);
+}
+
+static VALUE rb_set_match_threshold(VALUE self, VALUE value) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+
+  ctx->Match_Threshold = NUM2DBL(value);
+
+  return value;
+}
+
 void register_dmp(){
 
   cDiffMatchPatch = rb_define_class("DiffMatchPatch", rb_cObject);
@@ -426,12 +442,10 @@ void register_dmp(){
   rb_define_method(cDiffMatchPatch, "diff_levenshtein", (ruby_method_vararg *)rb_diff_levenshtein, 1);
   rb_define_method(cDiffMatchPatch, "diff_pretty_html", (ruby_method_vararg *)rb_diff_pretty_html, 1);
   rb_define_method(cDiffMatchPatch, "match_main", (ruby_method_vararg *)rb_match_main, 3);
+  rb_define_method(cDiffMatchPatch, "match_threshold", (ruby_method_vararg *)rb_match_threshold, 0);
+  rb_define_method(cDiffMatchPatch, "match_threshold=", (ruby_method_vararg *)rb_set_match_threshold, 1);
 
   /*
-
-  rb_cDMP.define_method("match_main", &rb_diff_match_patch::rb_match_main);
-  rb_cDMP.define_method("match_threshold", &rb_diff_match_patch::GetMatch_Threshold);
-  rb_cDMP.define_method("match_threshold=", &rb_diff_match_patch::SetMatch_Threshold);
   rb_cDMP.define_method("match_distance", &rb_diff_match_patch::GetMatch_Distance);
   rb_cDMP.define_method("match_distance=", &rb_diff_match_patch::SetMatch_Distance);
 
