@@ -443,6 +443,22 @@ static VALUE rb_set_match_distance(VALUE self, VALUE value) {
   return value;
 }
 
+static VALUE rb_patch_delete_threshold(VALUE self) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+
+  return DBL2NUM(ctx->Patch_DeleteThreshold);
+}
+
+static VALUE rb_set_patch_delete_threshold(VALUE self, VALUE value) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+
+  ctx->Patch_DeleteThreshold = NUM2DBL(value);
+
+  return value;
+}
+
 void register_dmp(){
 
   cDiffMatchPatch = rb_define_class("DiffMatchPatch", rb_cObject);
@@ -462,11 +478,10 @@ void register_dmp(){
   rb_define_method(cDiffMatchPatch, "match_threshold=", (ruby_method_vararg *)rb_set_match_threshold, 1);
   rb_define_method(cDiffMatchPatch, "match_distance", (ruby_method_vararg *)rb_match_distance, 0);
   rb_define_method(cDiffMatchPatch, "match_distance=", (ruby_method_vararg *)rb_set_match_distance, 1);
+  rb_define_method(cDiffMatchPatch, "patch_delete_threshold", (ruby_method_vararg *)rb_patch_delete_threshold, 0);
+  rb_define_method(cDiffMatchPatch, "patch_delete_threshold=", (ruby_method_vararg *)rb_set_patch_delete_threshold, 1);
 
   /*
-  rb_cDMP.define_method("match_distance", &rb_diff_match_patch::GetMatch_Distance);
-  rb_cDMP.define_method("match_distance=", &rb_diff_match_patch::SetMatch_Distance);
-
   rb_cDMP.define_method("patch_delete_threshold", &rb_diff_match_patch::GetPatch_DeleteThreshold);
   rb_cDMP.define_method("patch_delete_threshold=", &rb_diff_match_patch::SetPatch_DeleteThreshold);
   rb_cDMP.define_method("patch_from_text", &rb_diff_match_patch::rb_patch_fromText);
