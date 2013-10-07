@@ -2,6 +2,7 @@
 
 #include <string>
 #include "diff_match_patch-stl/diff_match_patch.h"
+#include <ruby/thread.h>
 
 VALUE cPatch;
 VALUE cDiffMatchPatch;
@@ -81,16 +82,48 @@ dmp::Diffs diffsFromRubyArray(VALUE array){
   return diffs;
 }
 
+struct nogvl_diff_args {
+  dmp * ctx;
+  const char * text1;
+  const char * text2;
+  bool lines;
+};
+
+static dmp::Diffs * nogvl_diff_main(struct nogvl_diff_args * args) {
+  dmp *ctx = args->ctx;
+
+  dmp::Diffs diffs = ctx->diff_main(dmp::string_t(args->text1),
+                                    dmp::string_t(args->text2),
+                                    args->lines);
+
+  return new dmp::Diffs(diffs);
+}
+
 static VALUE rb_diff_main(VALUE self, VALUE text1, VALUE text2, VALUE lines)
 {
   dmp * ctx;
+  void * rv;
+  struct nogvl_diff_args args;
+  dmp::Diffs * diffs;
+  VALUE list;
+
   Data_Get_Struct(self, dmp, ctx);
 
-  dmp::Diffs diffs = ctx->diff_main(dmp::string_t(StringValuePtr(text1)),
-                               dmp::string_t(StringValuePtr(text2)),
-                               RTEST(lines));
+  args.ctx = ctx;
+  args.text1 = StringValuePtr(text1);
+  args.text2 = StringValuePtr(text2);
+  args.lines = RTEST(lines);
 
-  return rubyArrayFromDiffsWithArray(diffs, rb_ary_new());
+  rv = rb_thread_call_without_gvl((void *(*)(void *))nogvl_diff_main,
+      (void *)&args, RUBY_UBF_PROCESS, 0);
+
+  diffs = reinterpret_cast<dmp::Diffs *>(rv);
+
+  list = rubyArrayFromDiffsWithArray(*diffs, rb_ary_new());
+
+  delete diffs;
+
+  return list;
 }
 
 static VALUE rb_diff_timeout(VALUE self) {
