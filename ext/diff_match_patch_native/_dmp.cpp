@@ -522,6 +522,16 @@ static VALUE rb_patch_make_from_diffs(VALUE self, VALUE array) {
   return rubyArrayFromPatches(patches);
 }
 
+static VALUE rb_patch_make_from_text_and_diff(VALUE self, VALUE text, VALUE array) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+
+  dmp::Diffs diffs = diffsFromRubyArray(array, false);
+  dmp::Patches patches = ctx->patch_make(dmp::string_t(StringValuePtr(text)),
+                                         diffs);
+  return rubyArrayFromPatches(patches);
+}
+
 void register_dmp(){
 
   cDiffMatchPatch = rb_define_class("DiffMatchPatch", rb_cObject);
@@ -548,6 +558,7 @@ void register_dmp(){
   rb_define_method(cDiffMatchPatch, "patch_to_text", (ruby_method_vararg *)rb_patch_to_text, 1);
   rb_define_method(cDiffMatchPatch, "__patch_make_from_texts__", (ruby_method_vararg *)rb_patch_make_from_texts, 2);
   rb_define_method(cDiffMatchPatch, "__patch_make_from_diffs__", (ruby_method_vararg *)rb_patch_make_from_diffs, 1);
+  rb_define_method(cDiffMatchPatch, "__patch_make_from_text_and_diff__", (ruby_method_vararg *)rb_patch_make_from_text_and_diff, 2);
 
   /*
   rb_cDMP.define_method("__patch_make_from_text_and_diff__", &rb_diff_match_patch::rb_patch_make_from_text_and_diff);
