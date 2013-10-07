@@ -9,14 +9,10 @@ VALUE cDiffMatchPatch;
 #define RB_DEFINE_METHOD(klass, sym, fun, arv) \
   rb_define_method(klass, sym, (ruby_method_vararg *)fun, arv);
 
-/*
-* A lightweight wrapper around Patch, so Rice can get at it. Delegates 
-* to the patch as necissary
-*/
+/* A patch wrapper that we can heap allocate.  */
 class rb_patch_wrapper{
   public:
     dmp::Patch patch;
-
     rb_patch_wrapper(dmp::Patch &the_patch) : patch(the_patch) {}
 };
 
@@ -248,8 +244,7 @@ dmp::Patches patchesFromRubyArray(VALUE array){
   dmp::Patches patches;
   for (size_t i = 0; i < RARRAY_LEN(array); ++i) {
     rb_patch_wrapper * wrapper;
-    VALUE element = RARRAY_AREF(array, i);
-    Data_Get_Struct(element, rb_patch_wrapper, wrapper);
+    Data_Get_Struct(RARRAY_AREF(array, i), rb_patch_wrapper, wrapper);
     patches.push_back(wrapper->patch);
   }
   return patches;
