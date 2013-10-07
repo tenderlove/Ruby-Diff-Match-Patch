@@ -93,7 +93,6 @@ static VALUE rb_diff_main(VALUE self, VALUE text1, VALUE text2, VALUE lines)
 {
   dmp * ctx;
   bool flag;
-  VALUE rb_diffs;
   Data_Get_Struct(self, dmp, ctx);
 
   if (lines == Qtrue)
@@ -105,8 +104,7 @@ static VALUE rb_diff_main(VALUE self, VALUE text1, VALUE text2, VALUE lines)
                                dmp::string_t(StringValuePtr(text2)),
                                flag);
 
-  rb_diffs = rb_ary_new();
-  return rubyArrayFromDiffsWithArray(diffs, rb_diffs);
+  return rubyArrayFromDiffsWithArray(diffs, rb_ary_new());
 }
 
 static VALUE rb_diff_timeout(VALUE self) {
