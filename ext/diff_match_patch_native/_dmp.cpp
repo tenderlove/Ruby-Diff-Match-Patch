@@ -3,7 +3,8 @@
 #include <string>
 #include "diff_match_patch-stl/diff_match_patch.h"
 
-#if 0
+VALUE cPatch;
+
 /*
 * A lightweight wrapper around Patch, so Rice can get at it. Delegates 
 * to the patch as necissary
@@ -43,6 +44,7 @@ class rb_patch_wrapper{
 };
 
 
+#if 0
 /*
 * A subclass of diff_match_patch<std::string>, adding methods for
 * translating between C++ and Ruby.
@@ -459,9 +461,32 @@ static VALUE rb_set_patch_delete_threshold(VALUE self, VALUE value) {
   return value;
 }
 
+static VALUE rubyArrayFromPatches(dmp::Patches patches){
+  VALUE out = rb_ary_new();
+  dmp::Patches::iterator current_patch = patches.begin();
+
+  for (current_patch = patches.begin(); current_patch != patches.end(); ++current_patch){
+    rb_patch_wrapper * p = new rb_patch_wrapper(*current_patch);
+    VALUE patch = Data_Wrap_Struct(cPatch, 0, 0, p);
+    rb_ary_push(out, patch);
+  }
+
+  return out;
+}
+
+static VALUE rb_patch_from_text(VALUE self, VALUE text) {
+  dmp * ctx;
+  Data_Get_Struct(self, dmp, ctx);
+
+  dmp::Patches patches = ctx->patch_fromText(dmp::string_t(StringValuePtr(text)));
+
+  return rubyArrayFromPatches(patches);
+}
+
 void register_dmp(){
 
   cDiffMatchPatch = rb_define_class("DiffMatchPatch", rb_cObject);
+  cPatch = rb_define_class_under(cDiffMatchPatch, "Patch", rb_cObject);
 
   rb_define_alloc_func(cDiffMatchPatch, allocate);
   rb_define_method(cDiffMatchPatch, "diff_main", (ruby_method_vararg *)rb_diff_main, 3);
@@ -480,10 +505,9 @@ void register_dmp(){
   rb_define_method(cDiffMatchPatch, "match_distance=", (ruby_method_vararg *)rb_set_match_distance, 1);
   rb_define_method(cDiffMatchPatch, "patch_delete_threshold", (ruby_method_vararg *)rb_patch_delete_threshold, 0);
   rb_define_method(cDiffMatchPatch, "patch_delete_threshold=", (ruby_method_vararg *)rb_set_patch_delete_threshold, 1);
+  rb_define_method(cDiffMatchPatch, "patch_from_text", (ruby_method_vararg *)rb_patch_from_text, 1);
 
   /*
-  rb_cDMP.define_method("patch_delete_threshold", &rb_diff_match_patch::GetPatch_DeleteThreshold);
-  rb_cDMP.define_method("patch_delete_threshold=", &rb_diff_match_patch::SetPatch_DeleteThreshold);
   rb_cDMP.define_method("patch_from_text", &rb_diff_match_patch::rb_patch_fromText);
   rb_cDMP.define_method("patch_to_text", &rb_diff_match_patch::rb_patch_toText);
   rb_cDMP.define_method("__patch_make_from_texts__", &rb_diff_match_patch::rb_patch_make_from_texts);
