@@ -12,6 +12,6 @@
 #define dmp diff_match_patch<std::string>
 typedef VALUE (ruby_method_vararg)(...);
 
-void register_dmp();
+extern "C" void Init_diff_match_patch(void);
 
 #endif

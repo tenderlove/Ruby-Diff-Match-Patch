@@ -330,8 +330,7 @@ static VALUE rb_patch_to_string(VALUE self) {
   return rb_str_new(str.c_str(), str.size());
 }
 
-void register_dmp(){
-
+void Init_diff_match_patch(){
   cDiffMatchPatch = rb_define_class("DiffMatchPatch", rb_cObject);
   cPatch = rb_define_class_under(cDiffMatchPatch, "Patch", rb_cObject);
 
