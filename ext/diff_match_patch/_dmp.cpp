@@ -5,6 +5,9 @@
 
 VALUE cPatch;
 
+#define RB_DEFINE_METHOD(klass, sym, fun, arv) \
+  rb_define_method(klass, sym, (ruby_method_vararg *)fun, arv);
+
 /*
 * A lightweight wrapper around Patch, so Rice can get at it. Delegates 
 * to the patch as necissary
@@ -335,30 +338,30 @@ void Init_diff_match_patch(){
   cPatch = rb_define_class_under(cDiffMatchPatch, "Patch", rb_cObject);
 
   rb_define_alloc_func(cDiffMatchPatch, allocate);
-  rb_define_method(cDiffMatchPatch, "diff_main", (ruby_method_vararg *)rb_diff_main, 3);
-  rb_define_method(cDiffMatchPatch, "diff_timeout", (ruby_method_vararg *)rb_diff_timeout, 0);
-  rb_define_method(cDiffMatchPatch, "diff_timeout=", (ruby_method_vararg *)rb_set_diff_timeout, 1);
-  rb_define_method(cDiffMatchPatch, "diff_edit_cost", (ruby_method_vararg *)rb_diff_edit_cost, 0);
-  rb_define_method(cDiffMatchPatch, "diff_edit_cost=", (ruby_method_vararg *)rb_set_diff_edit_cost, 1);
-  rb_define_method(cDiffMatchPatch, "diff_cleanup_semantic!", (ruby_method_vararg *)rb_diff_cleanup_semantic, 1);
-  rb_define_method(cDiffMatchPatch, "diff_cleanup_efficiency!", (ruby_method_vararg *)rb_diff_cleanup_efficiency, 1);
-  rb_define_method(cDiffMatchPatch, "diff_levenshtein", (ruby_method_vararg *)rb_diff_levenshtein, 1);
-  rb_define_method(cDiffMatchPatch, "diff_pretty_html", (ruby_method_vararg *)rb_diff_pretty_html, 1);
-  rb_define_method(cDiffMatchPatch, "match_main", (ruby_method_vararg *)rb_match_main, 3);
-  rb_define_method(cDiffMatchPatch, "match_threshold", (ruby_method_vararg *)rb_match_threshold, 0);
-  rb_define_method(cDiffMatchPatch, "match_threshold=", (ruby_method_vararg *)rb_set_match_threshold, 1);
-  rb_define_method(cDiffMatchPatch, "match_distance", (ruby_method_vararg *)rb_match_distance, 0);
-  rb_define_method(cDiffMatchPatch, "match_distance=", (ruby_method_vararg *)rb_set_match_distance, 1);
-  rb_define_method(cDiffMatchPatch, "patch_delete_threshold", (ruby_method_vararg *)rb_patch_delete_threshold, 0);
-  rb_define_method(cDiffMatchPatch, "patch_delete_threshold=", (ruby_method_vararg *)rb_set_patch_delete_threshold, 1);
-  rb_define_method(cDiffMatchPatch, "patch_from_text", (ruby_method_vararg *)rb_patch_from_text, 1);
-  rb_define_method(cDiffMatchPatch, "patch_to_text", (ruby_method_vararg *)rb_patch_to_text, 1);
-  rb_define_method(cDiffMatchPatch, "__patch_make_from_texts__", (ruby_method_vararg *)rb_patch_make_from_texts, 2);
-  rb_define_method(cDiffMatchPatch, "__patch_make_from_diffs__", (ruby_method_vararg *)rb_patch_make_from_diffs, 1);
-  rb_define_method(cDiffMatchPatch, "__patch_make_from_text_and_diff__", (ruby_method_vararg *)rb_patch_make_from_text_and_diff, 2);
-  rb_define_method(cDiffMatchPatch, "patch_apply", (ruby_method_vararg *)rb_patch_apply, 2);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "diff_main", rb_diff_main, 3);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "diff_timeout", rb_diff_timeout, 0);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "diff_timeout=", rb_set_diff_timeout, 1);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "diff_edit_cost", rb_diff_edit_cost, 0);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "diff_edit_cost=", rb_set_diff_edit_cost, 1);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "diff_cleanup_semantic!", rb_diff_cleanup_semantic, 1);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "diff_cleanup_efficiency!", rb_diff_cleanup_efficiency, 1);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "diff_levenshtein", rb_diff_levenshtein, 1);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "diff_pretty_html", rb_diff_pretty_html, 1);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "match_main", rb_match_main, 3);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "match_threshold", rb_match_threshold, 0);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "match_threshold=", rb_set_match_threshold, 1);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "match_distance", rb_match_distance, 0);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "match_distance=", rb_set_match_distance, 1);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "patch_delete_threshold", rb_patch_delete_threshold, 0);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "patch_delete_threshold=", rb_set_patch_delete_threshold, 1);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "patch_from_text", rb_patch_from_text, 1);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "patch_to_text", rb_patch_to_text, 1);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "__patch_make_from_texts__", rb_patch_make_from_texts, 2);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "__patch_make_from_diffs__", rb_patch_make_from_diffs, 1);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "__patch_make_from_text_and_diff__", rb_patch_make_from_text_and_diff, 2);
+  RB_DEFINE_METHOD(cDiffMatchPatch, "patch_apply", rb_patch_apply, 2);
 
-  rb_define_method(cPatch, "to_string", (ruby_method_vararg *)rb_patch_to_string, 0);
+  RB_DEFINE_METHOD(cPatch, "to_string", rb_patch_to_string, 0);
   /*
   rb_cPatch.define_method("to_string", &rb_patch_wrapper::toString);
   rb_cPatch.define_method("is_null?", &rb_patch_wrapper::isNull);
