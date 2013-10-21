@@ -2,7 +2,18 @@
 
 #include <string>
 #include "diff_match_patch-stl/diff_match_patch.h"
+#ifdef HAVE_RUBY_THREAD_H
 #include <ruby/thread.h>
+#else
+#include <ruby/intern.h>
+void *
+rb_thread_call_without_gvl(void *(*func)(void *data), void *data1,
+			    rb_unblock_function_t *ubf, void *data2) {
+  return (void *)rb_thread_blocking_region(
+      (rb_blocking_function_t *)func, data1,
+      (rb_unblock_function_t *)ubf, data2);
+}
+#endif
 
 VALUE cPatch;
 VALUE cDiffMatchPatch;
