@@ -59,10 +59,10 @@ dmp::Diffs diffsFromRubyArray(VALUE array){
     VALUE diffstr;
     char * c_diffstr;
 
-    rb_diff = RARRAY_AREF(array, i);
+    rb_diff = rb_ary_entry(array, i);
 
     dmp::Operation op;
-    switch (NUM2INT(RARRAY_AREF(rb_diff, 0))) {
+    switch (NUM2INT(rb_ary_entry(rb_diff, 0))) {
       case 1:
         op = dmp::INSERT;
         break;
@@ -73,7 +73,7 @@ dmp::Diffs diffsFromRubyArray(VALUE array){
         op = dmp::DELETE;
         break;
     }
-    diffstr = RARRAY_AREF(rb_diff, 1);
+    diffstr = rb_ary_entry(rb_diff, 1);
     c_diffstr = StringValuePtr(diffstr);
     dmp::Diff ddiff = dmp::Diff(op, dmp::string_t(c_diffstr));
     diffs.push_back(ddiff);
@@ -273,7 +273,7 @@ dmp::Patches patchesFromRubyArray(VALUE array){
   dmp::Patches patches;
   for (size_t i = 0; i < RARRAY_LEN(array); ++i) {
     rb_patch_wrapper * wrapper;
-    Data_Get_Struct(RARRAY_AREF(array, i), rb_patch_wrapper, wrapper);
+    Data_Get_Struct(rb_ary_entry(array, i), rb_patch_wrapper, wrapper);
     patches.push_back(wrapper->patch);
   }
   return patches;
